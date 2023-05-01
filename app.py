@@ -27,11 +27,11 @@ def list_all_cupcakes():
     return jsonify(cupcakes=serialized)
 
 
-@app.get('api/cupcakes/<cupcake-id>')
-def list_single_cupcake():
+@app.get('/api/cupcakes/<cupcake_id>')
+def list_single_cupcake(cupcake_id):
     """Return JSON {'cupcake': {id, flavor, size, rating, image_url}}"""
 
-    cupcake = Cupcake.query.get_or_404(cupcake-id)
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
     serialized = cupcake.serialize()
 
     return jsonify(cupcake=serialized)
@@ -46,7 +46,7 @@ def create_cupcake():
     flavor = request.json["flavor"]
     size = request.json["size"]
     rating = request.json["rating"]
-    image_url = request.json["image_url"]
+    image_url = request.json.get("image_url") or None
 
     new_cupcake = Cupcake(flavor=flavor,
                           size=size,
@@ -54,9 +54,48 @@ def create_cupcake():
                           image_url=image_url)
 
     db.session.add(new_cupcake)
-    db.session.commit
+    db.session.commit()
 
     serialized = new_cupcake.serialize()
 
     return (jsonify(cupcake=serialized), 201)
 
+
+
+@app.patch('/api/cupcakes/<cupcake_id>')
+def update_cupcake(cupcake_id):
+    """Update instance of Cupcake by changing 1 or more values,
+    return JSON {cupcake: {id, flavor, size, rating, image_url}}
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    flavor = request.json.get("flavor") or cupcake.flavor
+    size = request.json.get("size") or cupcake.size
+    rating = request.json.get("rating") or cupcake.rating
+    image_url = request.json.get("image_url") or cupcake.image_url
+
+    cupcake.flavor = flavor
+    cupcake.size = size
+    cupcake.rating = rating
+    cupcake.image_url = image_url
+
+    db.session.commit()
+
+    serialized = cupcake.serialize()
+
+    return (jsonify(cupcake=serialized), 200)
+
+
+@app.delete('/api/cupcakes/<cupcake_id>')
+def delete_cupcake(cupcake_id):
+    """Delete instance of Cupcake,
+    return JSON {cupcake: {id, flavor, size, rating, image_url}}
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    db.session.delete(cupcake)
+    db.session.commit()
+
+    return (jsonify('{'f"deleted: [{cupcake_id}]"'}'), 200)
