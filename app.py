@@ -1,13 +1,8 @@
 """Flask app for Cupcakes"""
 
 import os
-
 from flask import Flask, jsonify, request
-# from dotenv import load_dotenv
-
 from models import db, Cupcake, connect_db
-
-# from forms import
 
 app = Flask(__name__)
 app.debug = True
@@ -45,7 +40,8 @@ def list_single_cupcake():
 @app.post('/api/cupcakes')
 def create_cupcake():
     """Create instance of Cupcake,
-    return JSON {cupcake: {id, flavor, size, rating, image_url}}"""
+    return JSON {cupcake: {id, flavor, size, rating, image_url}}
+    """
 
     flavor = request.json["flavor"]
     size = request.json["size"]
