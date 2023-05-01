@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
+DEFAULT_IMAGE_URL= "https://tinyurl.com/demo-cupcake"
+
 """Models for Cupcake app."""
 
 def connect_db(app):
@@ -34,7 +36,7 @@ class Cupcake(db.Model):
     image_url = db.Column(
         db.String(500),
         nullable=False,
-        default="https://tinyurl.com/demo-cupcake") #TODO: GLOBAL
+        default=DEFAULT_IMAGE_URL)
 
     def serialize(self):
         """Serialize to dictionary."""

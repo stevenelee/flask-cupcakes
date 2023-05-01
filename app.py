@@ -2,7 +2,7 @@
 
 import os
 from flask import Flask, jsonify, request
-from models import db, Cupcake, connect_db
+from models import db, Cupcake, connect_db, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
 app.debug = True
@@ -70,24 +70,20 @@ def update_cupcake(cupcake_id):
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
 
-    flavor = request.json.get("flavor") or cupcake.flavor
-    size = request.json.get("size") or cupcake.size
-    rating = request.json.get("rating") or cupcake.rating
-    image_url = request.json.get("image_url") or cupcake.image_url
-
-    cupcake.flavor = flavor
-    cupcake.size = size
-    cupcake.rating = rating
-    cupcake.image_url = image_url
+    cupcake.flavor = request.json.get("flavor", cupcake.flavor)
+    cupcake.size = request.json.get("size", cupcake.size)
+    cupcake.rating = request.json.get("rating", cupcake.rating)
+    if "image_url" in request.json:
+        cupcake.image_url = request.json.get("image_url") or DEFAULT_IMAGE_URL
 
     db.session.commit()
 
     serialized = cupcake.serialize()
 
-    return (jsonify(cupcake=serialized), 200)
+    return jsonify(cupcake=serialized)
 
 
-@app.delete('/api/cupcakes/<cupcake_id>')
+@app.delete('/api/cupcakes/<int:cupcake_id>')
 def delete_cupcake(cupcake_id):
     """Delete instance of Cupcake,
     return JSON {cupcake: {id, flavor, size, rating, image_url}}
@@ -98,4 +94,4 @@ def delete_cupcake(cupcake_id):
     db.session.delete(cupcake)
     db.session.commit()
 
-    return (jsonify('{'f"deleted: [{cupcake_id}]"'}'), 200)
+    return jsonify({"deleted": cupcake_id})
