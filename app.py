@@ -1,7 +1,7 @@
 """Flask app for Cupcakes"""
 
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from models import db, Cupcake, connect_db, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
@@ -15,6 +15,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
 connect_db(app)
+
+
+@app.get('/')
+def homepage():
+    """ """
+    cupcakes = Cupcake.query.all()
+    serialized = [c.serialize() for c in cupcakes]
+
+    return render_template("homepage.html")
 
 
 @app.get('/api/cupcakes')
